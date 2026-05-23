@@ -27,8 +27,14 @@ export default function App() {
   const [safetyLocation, setSafetyLocation] = useState("Goodwills");
 
   useEffect(() => {
+  fetchVehicles();
+
+  const interval = setInterval(() => {
     fetchVehicles();
-  }, []);
+  }, 30000);
+
+  return () => clearInterval(interval);
+}, []);
 
   async function fetchVehicles() {
     const { data, error } = await supabase
