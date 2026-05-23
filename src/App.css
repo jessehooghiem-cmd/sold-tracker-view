@@ -321,3 +321,33 @@ button:hover {
 .column {
   pointer-events: auto;
 }
+.trash-box {
+  background: rgba(120, 20, 20, 0.55);
+  border: 2px dashed rgba(255, 255, 255, 0.45);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  color: white;
+  margin-top: 4px;
+}
+
+.trash-box:hover {
+  background: rgba(160, 25, 25, 0.75);
+  border-color: white;
+}
+
+.trash-icon {
+  font-size: 30px;
+  margin-bottom: 6px;
+}
+
+.trash-box h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.trash-box p {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.85;
+}

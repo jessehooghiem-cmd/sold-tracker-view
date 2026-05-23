@@ -200,7 +200,36 @@ export default function App() {
     setSafetyLocation("Goodwills");
     fetchVehicles();
   }
+  async function deleteVehicle(vehicleId) {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this vehicle?"
+  );
 
+  if (!confirmDelete) return;
+
+  const { error } = await supabase
+    .from("vehicles")
+    .delete()
+    .eq("id", vehicleId);
+
+  if (error) {
+    console.error("Delete error:", error);
+    alert("Vehicle could not be deleted.");
+    return;
+  }
+
+  fetchVehicles();
+}
+
+async function onTrashDrop(e) {
+  e.preventDefault();
+
+  const vehicleId = e.dataTransfer.getData("text/plain");
+
+  if (!vehicleId) return;
+
+  await deleteVehicle(vehicleId);
+}
   async function saveParts() {
     const { error } = await supabase
       .from("vehicles")
@@ -304,6 +333,16 @@ export default function App() {
             </div>
           </div>
         </aside>
+        <div
+  className="trash-box"
+  onDragEnter={(e) => e.preventDefault()}
+  onDragOver={(e) => e.preventDefault()}
+  onDrop={onTrashDrop}
+>
+  <div className="trash-icon">🗑️</div>
+  <h3>Delete Vehicle</h3>
+  <p>Drag vehicle here</p>
+</div>
 
         <section className="board">
           {columns.map((column) => (
