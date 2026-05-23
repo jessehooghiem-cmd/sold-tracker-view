@@ -163,10 +163,19 @@ export default function App() {
       vehicleId
     );
   }
+  function onDragStart(e, vehicleId) {
+  e.dataTransfer.setData(
+    "text/plain",
+    String(vehicleId)
+  );
 
+  e.dataTransfer.effectAllowed = "move";
+}
   async function onDrop(e, status) {
     e.preventDefault();
-
+    const vehicleId =
+  e.dataTransfer.getData("text/plain");
+  
     const vehicleId =
       e.dataTransfer.getData("vehicleId");
 
