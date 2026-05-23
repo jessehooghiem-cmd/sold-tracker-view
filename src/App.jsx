@@ -13,7 +13,6 @@ const salesmanColors = {
 };
 
 const safetyLocations = ["Goodwills", "Firby", "Auto Care", "3D Auto"];
-
 const FOUR_DAYS = 4 * 24 * 60 * 60 * 1000;
 
 export default function App() {
@@ -22,29 +21,34 @@ export default function App() {
   const [salesman, setSalesman] = useState("Tom");
   const [decoded, setDecoded] = useState(null);
   const [vehicles, setVehicles] = useState([]);
-  useEffect(() => {
-  fetchVehicles();
-}, []);
-
-async function fetchVehicles() {
-  const { data, error } = await supabase
-    .from("vehicles")
-    .select("*");
-
-  if (!error) {
-    setVehicles(data || []);
-  }
-}
   const [partsPopup, setPartsPopup] = useState(null);
   const [partsText, setPartsText] = useState("");
   const [safetyPopup, setSafetyPopup] = useState(null);
   const [safetyLocation, setSafetyLocation] = useState("Goodwills");
 
+  useEffect(() => {
+    fetchVehicles();
+  }, []);
+
+  async function fetchVehicles() {
+    const { data, error } = await supabase
+      .from("vehicles")
+      .select("*")
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Fetch error:", error);
+      return;
+    }
+
+    setVehicles(data || []);
+  }
+
   const activeVehicles = vehicles.filter((vehicle) => {
     if (vehicle.status !== "Completed") return true;
-    if (!vehicle.completedDate) return true;
+    if (!vehicle.completed_date) return true;
 
-    return Date.now() - new Date(vehicle.completedDate).getTime() < FOUR_DAYS;
+    return Date.now() - new Date(vehicle.completed_date).getTime() < FOUR_DAYS;
   });
 
   const soldsInQueue = activeVehicles.filter(
@@ -52,15 +56,15 @@ async function fetchVehicles() {
   ).length;
 
   const completedVehicles = vehicles.filter(
-    (vehicle) => vehicle.completedDate && vehicle.createdAt
+    (vehicle) => vehicle.completed_date && vehicle.created_at
   );
 
   const averageSafetyTime =
     completedVehicles.length === 0
       ? 0
       : completedVehicles.reduce((total, vehicle) => {
-          const started = new Date(vehicle.createdAt).getTime();
-          const completed = new Date(vehicle.completedDate).getTime();
+          const started = new Date(vehicle.created_at).getTime();
+          const completed = new Date(vehicle.completed_date).getTime();
           const days = (completed - started) / (1000 * 60 * 60 * 24);
           return total + days;
         }, 0) / completedVehicles.length;
@@ -102,7 +106,6 @@ async function fetchVehicles() {
     const now = new Date();
 
     const newVehicle = {
-      id: crypto.randomUUID(),
       year: decoded.year,
       make: decoded.make,
       model: decoded.model,
@@ -110,19 +113,21 @@ async function fetchVehicles() {
       salesman,
       status: "Sold",
       parts: "",
-      safetyLocation: "",
-      dateAdded: now.toLocaleDateString("en-CA"),
-      createdAt: now.toISOString(),
-      completedDate: null,
+      safety_location: "",
+      date_added: now.toLocaleDateString("en-CA"),
+      created_at: now.toISOString(),
+      completed_date: null,
     };
 
-    const { error } = await supabase
-  .from("vehicles")
-  .insert([newVehicle]);
+    const { error } = await supabase.from("vehicles").insert([newVehicle]);
 
-if (!error) {
-  fetchVehicles();
-}
+    if (error) {
+      console.error("Insert error:", error);
+      alert("Vehicle did not save. Check console for error.");
+      return;
+    }
+
+    await fetchVehicles();
     setVin("");
     setStock("");
     setDecoded(null);
@@ -132,13 +137,15 @@ if (!error) {
     e.dataTransfer.setData("vehicleId", vehicleId);
   }
 
-  function onDrop(e, status) {
+  async function onDrop(e, status) {
     const vehicleId = e.dataTransfer.getData("vehicleId");
     const vehicle = vehicles.find((v) => v.id === vehicleId);
 
+    if (!vehicle) return;
+
     if (status === "In Progress") {
       setSafetyPopup(vehicle);
-      setSafetyLocation(vehicle.safetyLocation || "Goodwills");
+      setSafetyLocation(vehicle.safety_location || "Goodwills");
       return;
     }
 
@@ -148,54 +155,61 @@ if (!error) {
       return;
     }
 
-    setVehicles(
-      vehicles.map((v) =>
-        v.id === vehicleId
-          ? {
-              ...v,
-              status,
-              completedDate:
-                status === "Completed" ? new Date().toISOString() : null,
-            }
-          : v
-      )
-    );
+    const { error } = await supabase
+      .from("vehicles")
+      .update({
+        status,
+        completed_date:
+          status === "Completed" ? new Date().toISOString() : null,
+      })
+      .eq("id", vehicleId);
+
+    if (error) {
+      console.error("Update error:", error);
+      return;
+    }
+
+    fetchVehicles();
   }
 
-  function saveSafetyLocation() {
-    setVehicles(
-      vehicles.map((v) =>
-        v.id === safetyPopup.id
-          ? {
-              ...v,
-              status: "In Progress",
-              safetyLocation,
-              completedDate: null,
-            }
-          : v
-      )
-    );
+  async function saveSafetyLocation() {
+    const { error } = await supabase
+      .from("vehicles")
+      .update({
+        status: "In Progress",
+        safety_location: safetyLocation,
+        completed_date: null,
+      })
+      .eq("id", safetyPopup.id);
+
+    if (error) {
+      console.error("Safety update error:", error);
+      return;
+    }
 
     setSafetyPopup(null);
     setSafetyLocation("Goodwills");
+    fetchVehicles();
   }
 
-  function saveParts() {
-    setVehicles(
-      vehicles.map((v) =>
-        v.id === partsPopup.id
-          ? {
-              ...v,
-              status: "Waiting on Parts",
-              parts: partsText,
-              completedDate: null,
-            }
-          : v
-      )
-    );
+  async function saveParts() {
+    const { error } = await supabase
+      .from("vehicles")
+      .update({
+        status: "Waiting on Parts",
+        parts: partsText,
+        completed_date: null,
+      })
+      .eq("id", partsPopup.id);
+
+    if (error) {
+      console.error("Parts update error:", error);
+      return;
+    }
 
     setPartsPopup(null);
     setPartsText("");
+    fetchVehicles();
   }
 
   return (
@@ -261,7 +275,6 @@ if (!error) {
 
           <div className="legend">
             <h3>Salesman Colors</h3>
-
             {Object.entries(salesmanColors).map(([name, color]) => (
               <div key={name}>
                 <span style={{ backgroundColor: color }}></span>
@@ -293,7 +306,9 @@ if (!error) {
             >
               <h2>
                 {column}
-                <span>{activeVehicles.filter((v) => v.status === column).length}</span>
+                <span>
+                  {activeVehicles.filter((v) => v.status === column).length}
+                </span>
               </h2>
 
               {activeVehicles
@@ -304,9 +319,11 @@ if (!error) {
                     className="vehicle-card"
                     draggable
                     onDragStart={(e) => onDragStart(e, vehicle.id)}
-                    style={{ backgroundColor: salesmanColors[vehicle.salesman] }}
+                    style={{
+                      backgroundColor: salesmanColors[vehicle.salesman],
+                    }}
                   >
-                    <div className="date-added">{vehicle.dateAdded}</div>
+                    <div className="date-added">{vehicle.date_added}</div>
 
                     <strong>
                       {vehicle.year} {vehicle.make} {vehicle.model}
@@ -314,9 +331,9 @@ if (!error) {
 
                     <p>Stock: {vehicle.stock}</p>
 
-                    {vehicle.safetyLocation && (
+                    {vehicle.safety_location && (
                       <div className="safety-location">
-                        Safety Location: {vehicle.safetyLocation}
+                        Safety Location: {vehicle.safety_location}
                       </div>
                     )}
 
@@ -366,7 +383,7 @@ if (!error) {
             <textarea
               value={partsText}
               onChange={(e) => setPartsText(e.target.value)}
-              placeholder="Front bumper cover&#10;Headlight assembly&#10;Grille"
+              placeholder=""
             />
 
             <div className="modal-buttons">
