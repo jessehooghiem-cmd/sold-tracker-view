@@ -314,3 +314,10 @@ button:hover {
   background-position: center;
   background-attachment: fixed;
 }
+.vehicle-card {
+  user-select: none;
+}
+
+.column {
+  pointer-events: auto;
+}
