@@ -322,18 +322,29 @@ async function onTrashDrop(e) {
           </div>
 
           <div className="stats-box">
-            <div className="stat-card">
-              <h3>Solds in Queue</h3>
-              <p>{soldsInQueue}</p>
-            </div>
+  <div className="stat-card">
+    <h3>Solds in Queue</h3>
+    <p>{soldsInQueue}</p>
+  </div>
 
-            <div className="stat-card">
-              <h3>Average Safety Time</h3>
-              <p>{averageSafetyTime.toFixed(1)} days</p>
-            </div>
-          </div>
-        </aside>
-        <div
+  <div className="stat-card">
+    <h3>Average Safety Time</h3>
+    <p>{averageSafetyTime.toFixed(1)} days</p>
+  </div>
+
+  <div
+    className="trash-box"
+    onDragEnter={(e) => e.preventDefault()}
+    onDragOver={(e) => e.preventDefault()}
+    onDrop={onTrashDrop}
+  >
+    <div className="trash-icon">🗑️</div>
+
+    <h3>Delete Vehicle</h3>
+
+    <p>Drag vehicle here</p>
+  </div>
+</div>
           className="trash-box"
           onDragEnter={(e) => e.preventDefault()}
           onDragOver={(e) => e.preventDefault()}
