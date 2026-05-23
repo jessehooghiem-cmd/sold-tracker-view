@@ -334,15 +334,16 @@ async function onTrashDrop(e) {
           </div>
         </aside>
         <div
-  className="trash-box"
-  onDragEnter={(e) => e.preventDefault()}
-  onDragOver={(e) => e.preventDefault()}
-  onDrop={onTrashDrop}
->
-  <div className="trash-icon">🗑️</div>
-  <h3>Delete Vehicle</h3>
-  <p>Drag vehicle here</p>
-</div>
+          className="trash-box"
+          onDragEnter={(e) => e.preventDefault()}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={onTrashDrop}
+        >
+         <div className="trash-icon">🗑️</div>
+          <h3>Delete Vehicle</h3>
+
+         <p>Drag vehicle here</p>
+        </div>
 
         <section className="board">
           {columns.map((column) => (
