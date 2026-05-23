@@ -175,9 +175,6 @@ export default function App() {
     e.preventDefault();
     const vehicleId =
   e.dataTransfer.getData("text/plain");
-  
-    const vehicleId =
-      e.dataTransfer.getData("vehicleId");
 
     const vehicle = vehicles.find(
       (v) => v.id === vehicleId
