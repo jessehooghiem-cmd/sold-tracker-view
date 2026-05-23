@@ -138,6 +138,48 @@ export default function App() {
   }
 
   async function onDrop(e, status) {
+  e.preventDefault();
+
+  const vehicleId = e.dataTransfer.getData("vehicleId");
+
+  const vehicle = vehicles.find((v) => v.id === vehicleId);
+
+  if (!vehicle) return;
+
+  if (status === "In Progress") {
+    setSafetyPopup(vehicle);
+    setSafetyLocation(vehicle.safety_location || "Goodwills");
+    return;
+  }
+
+  if (status === "Waiting on Parts") {
+    setPartsPopup(vehicle);
+    setPartsText("");
+    return;
+  }
+
+  const updateData = {
+    status,
+  };
+
+  if (status === "Completed") {
+    updateData.completed_date = new Date().toISOString();
+  } else {
+    updateData.completed_date = null;
+  }
+
+  const { error } = await supabase
+    .from("vehicles")
+    .update(updateData)
+    .eq("id", vehicleId);
+
+  if (error) {
+    console.error("Drag update error:", error);
+    return;
+  }
+
+  fetchVehicles();
+}
     const vehicleId = e.dataTransfer.getData("vehicleId");
     const vehicle = vehicles.find((v) => v.id === vehicleId);
 
