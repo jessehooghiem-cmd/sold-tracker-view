@@ -321,7 +321,7 @@ async function onTrashDrop(e) {
             ))}
           </div>
 
-          <div className="stats-box">
+<div className="stats-box">
   <div className="stat-card">
     <h3>Solds in Queue</h3>
     <p>{soldsInQueue}</p>
