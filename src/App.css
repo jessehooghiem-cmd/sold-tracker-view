@@ -363,36 +363,35 @@ button:hover {
 .top-dashboard {
   display: flex;
   align-items: center;
-  gap: 34px;
-  margin-left: auto;
+  gap: 40px;
+  margin-left: 40px;
   color: white;
 }
 
 .top-stat {
-  border-left: 1px solid rgba(255, 255, 255, 0.28);
+  border-left: 1px solid rgba(255,255,255,0.28);
   padding-left: 28px;
-  min-width: 150px;
+  min-width: 180px;
 }
-
 .top-stat span {
   display: block;
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 800;
   margin-bottom: 6px;
 }
-
 .top-stat strong {
-  font-size: 24px;
+  font-size: 54px;
   font-weight: 900;
+  line-height: 1;
 }
 
 .top-legend {
   display: flex;
   align-items: center;
-  gap: 16px;
-  border-left: 1px solid rgba(255, 255, 255, 0.28);
+  gap: 22px;
+  border-left: 1px solid rgba(255,255,255,0.28);
   padding-left: 28px;
-  flex-wrap: wrap;
+  margin-left: 10px;
 }
 
 .legend-title {
