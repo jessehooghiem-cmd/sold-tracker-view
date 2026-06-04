@@ -75,40 +75,31 @@ export default function App() {
           <h1>Sold Tracker</h1>
         </div>
 
-        <div className="top-actions">
-          <span>☁ View Only</span>
-          <span>Auto-refresh: 30s</span>
-        </div>
-      </header>
+        <div className="top-dashboard">
+          <div className="top-stat">
+            <span>Solds in Queue:</span>
+            <strong>{soldsInQueue}</strong>
+          </div>
 
-      <main>
-        <aside>
-          <h2>View Only</h2>
+          <div className="top-stat">
+            <span>Average Safety Time:</span>
+            <strong>{averageSafetyTime.toFixed(1)} days</strong>
+          </div>
 
-          <div className="legend">
-            <h3>Salesman Colors</h3>
+          <div className="top-legend">
+            <span className="legend-title">Salesman Colors:</span>
 
             {Object.entries(salesmanColors).map(([name, color]) => (
-              <div key={name}>
+              <div className="legend-inline" key={name}>
                 <span style={{ backgroundColor: color }}></span>
                 {name}
               </div>
             ))}
           </div>
+        </div>
+      </header>
 
-          <div className="stats-box">
-            <div className="stat-card">
-              <h3>Solds in Queue</h3>
-              <p>{soldsInQueue}</p>
-            </div>
-
-            <div className="stat-card">
-              <h3>Average Safety Time</h3>
-              <p>{averageSafetyTime.toFixed(1)} days</p>
-            </div>
-          </div>
-        </aside>
-
+      <main className="view-main">
         <section className="board">
           {columns.map((column) => (
             <div key={column} className="column">
